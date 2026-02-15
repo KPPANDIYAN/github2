@@ -1,0 +1,171 @@
+public class ValidationQueries {
+
+    // -----------------------------
+    // DATE VALIDATION QUERY
+    // -----------------------------
+    public static final String DATE_VALIDATION_QUERY = """
+        WITH excel_data AS (
+            SELECT
+                ROW_NUMBER() OVER () AS row_id,
+                STRPTIME(date_column, '%d%m%Y %H:%M:%S') AS excel_dt
+            FROM read_excel(?)
+        ),
+        csv_data AS (
+            SELECT
+                ROW_NUMBER() OVER () AS row_id,
+                STRPTIME(min_date, '%m%d%Y %H:%M:%S') AS csv_dt
+            FROM read_csv_auto(?)
+        )
+        SELECT
+            COALESCE(e.row_id, c.row_id) AS row_id,
+            e.excel_dt,
+            c.csv_dt,
+            CASE
+                WHEN e.row_id IS NULL THEN 'ADDITIONAL ROW IN CSV'
+                WHEN c.row_id IS NULL THEN 'MISSING ROW IN CSV'
+                WHEN e.excel_dt = c.csv_dt THEN 'PASS'
+                ELSE 'FAIL'
+            END AS status
+        FROM excel_data e
+        FULL OUTER JOIN csv_data c
+        ON e.row_id = c.row_id
+        ORDER BY row_id;
+        """;
+
+
+    // -----------------------------
+    // DEVICE ID MATCH QUERY
+    // -----------------------------
+    public static final String DEVICE_ID_MATCH_QUERY = """
+        WITH excel_data AS (
+            SELECT
+                ROW_NUMBER() OVER () AS row_id,
+                device_sample_id AS excel_id
+            FROM read_excel(?)
+        ),
+        csv_data AS (
+            SELECT
+                ROW_NUMBER() OVER () AS row_id,
+                device_sample_id AS csv_id
+            FROM read_csv_auto(?)
+        )
+        SELECT
+            COALESCE(e.row_id, c.row_id) AS row_id,
+            e.excel_id,
+            c.csv_id,
+            CASE
+                WHEN e.row_id IS NULL THEN 'ADDITIONAL ROW IN CSV'
+                WHEN c.row_id IS NULL THEN 'MISSING ROW IN CSV'
+                WHEN e.excel_id = c.csv_id THEN 'PASS'
+                ELSE 'FAIL'
+            END AS status
+        FROM excel_data e
+        FULL OUTER JOIN csv_data c
+        ON e.row_id = c.row_id
+        ORDER BY row_id;
+        """;
+
+
+    // -----------------------------
+    // DEVICE → ENTITY VALIDATION
+    // -----------------------------
+    public static final String DEVICE_ENTITY_QUERY = """
+        WITH excel_data AS (
+            SELECT
+                ROW_NUMBER() OVER () AS row_id,
+                REGEXP_EXTRACT(device_sample_id, '^[^ _-]+') AS token
+            FROM read_excel(?)
+        ),
+        transformed AS (
+            SELECT
+                row_id,
+                CASE
+                    WHEN token LIKE 'CCBR%' OR token LIKE 'CCSMP%' THEN token
+                    ELSE token
+                END AS expected_entity
+            FROM excel_data
+        ),
+        csv_data AS (
+            SELECT
+                ROW_NUMBER() OVER () AS row_id,
+                entity_id
+            FROM read_csv_auto(?)
+        )
+        SELECT
+            COALESCE(t.row_id, c.row_id) AS row_id,
+            t.expected_entity,
+            c.entity_id,
+            CASE
+                WHEN t.row_id IS NULL THEN 'ADDITIONAL ROW IN CSV'
+                WHEN c.row_id IS NULL THEN 'MISSING ROW IN CSV'
+                WHEN t.expected_entity = c.entity_id THEN 'PASS'
+                ELSE 'FAIL'
+            END AS status
+        FROM transformed t
+        FULL OUTER JOIN csv_data c
+        ON t.row_id = c.row_id
+        ORDER BY row_id;
+        """;
+}
+
+
+import java.sql.*;
+
+public class DuckDBValidator {
+
+    public static void runValidation(String query, String excelPath, String csvPath) {
+
+        try (Connection conn = DriverManager.getConnection("jdbc:duckdb:")) {
+
+            Statement stmt = conn.createStatement();
+
+            // Load Excel plugin globally
+            stmt.execute("INSTALL excel;");
+            stmt.execute("LOAD excel;");
+
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, excelPath);
+            ps.setString(2, csvPath);
+
+            ResultSet rs = ps.executeQuery();
+
+            int columnCount = rs.getMetaData().getColumnCount();
+
+            // Print header
+            for (int i = 1; i <= columnCount; i++) {
+                System.out.print(rs.getMetaData().getColumnName(i) + "\t");
+            }
+            System.out.println();
+
+            // Print rows
+            while (rs.next()) {
+                for (int i = 1; i <= columnCount; i++) {
+                    System.out.print(rs.getString(i) + "\t");
+                }
+                System.out.println();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    // -----------------------------
+    // MAIN METHOD
+    // -----------------------------
+    public static void main(String[] args) {
+
+        String excel = "input.xlsx";
+        String csv = "output.csv";
+
+        System.out.println("\n=== DATE VALIDATION ===");
+        runValidation(ValidationQueries.DATE_VALIDATION_QUERY, excel, csv);
+
+        System.out.println("\n=== DEVICE ID MATCH ===");
+        runValidation(ValidationQueries.DEVICE_ID_MATCH_QUERY, excel, csv);
+
+        System.out.println("\n=== DEVICE → ENTITY VALIDATION ===");
+        runValidation(ValidationQueries.DEVICE_ENTITY_QUERY, excel, csv);
+    }
+}
