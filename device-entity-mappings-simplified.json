@@ -1,0 +1,12 @@
+{
+  "deviceMappings": [
+    {
+      "prefix": "270",
+      "replacement": "CCBR"
+    },
+    {
+      "prefix": "767",
+      "replacement": "CCSMP"
+    }
+  ]
+}

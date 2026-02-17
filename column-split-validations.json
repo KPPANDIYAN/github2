@@ -1,0 +1,94 @@
+{
+  "columnSplitValidations": [
+    {
+      "excelColumn": "Glucose",
+      "rawColumn": "Glucose_raw",
+      "lgColumn": "Glucose_lg",
+      "description": "Glucose value: raw must match exactly, lg should contain only special chars"
+    },
+    {
+      "excelColumn": "Potassium",
+      "rawColumn": "Potassium_raw",
+      "lgColumn": "Potassium_lg",
+      "description": "Potassium value: raw must match exactly, lg should contain only special chars"
+    },
+    {
+      "excelColumn": "Sodium",
+      "rawColumn": "Sodium_raw",
+      "lgColumn": "Sodium_lg",
+      "description": "Sodium value: raw must match exactly, lg should contain only special chars"
+    },
+    {
+      "excelColumn": "Calcium",
+      "rawColumn": "Calcium_raw",
+      "lgColumn": "Calcium_lg",
+      "description": "Calcium value: raw must match exactly, lg should contain only special chars"
+    },
+    {
+      "excelColumn": "Magnesium",
+      "rawColumn": "Magnesium_raw",
+      "lgColumn": "Magnesium_lg",
+      "description": "Magnesium value: raw must match exactly, lg should contain only special chars"
+    },
+    {
+      "excelColumn": "Column_6",
+      "rawColumn": "Column_6_raw",
+      "lgColumn": "Column_6_lg",
+      "description": "Add your 6th column here"
+    },
+    {
+      "excelColumn": "Column_7",
+      "rawColumn": "Column_7_raw",
+      "lgColumn": "Column_7_lg",
+      "description": "Add your 7th column here"
+    },
+    {
+      "excelColumn": "Column_8",
+      "rawColumn": "Column_8_raw",
+      "lgColumn": "Column_8_lg",
+      "description": "Add your 8th column here"
+    },
+    {
+      "excelColumn": "Column_9",
+      "rawColumn": "Column_9_raw",
+      "lgColumn": "Column_9_lg",
+      "description": "Add your 9th column here"
+    },
+    {
+      "excelColumn": "Column_10",
+      "rawColumn": "Column_10_raw",
+      "lgColumn": "Column_10_lg",
+      "description": "Add your 10th column here"
+    },
+    {
+      "excelColumn": "Column_11",
+      "rawColumn": "Column_11_raw",
+      "lgColumn": "Column_11_lg",
+      "description": "Add your 11th column here"
+    },
+    {
+      "excelColumn": "Column_12",
+      "rawColumn": "Column_12_raw",
+      "lgColumn": "Column_12_lg",
+      "description": "Add your 12th column here"
+    },
+    {
+      "excelColumn": "Column_13",
+      "rawColumn": "Column_13_raw",
+      "lgColumn": "Column_13_lg",
+      "description": "Add your 13th column here"
+    },
+    {
+      "excelColumn": "Column_14",
+      "rawColumn": "Column_14_raw",
+      "lgColumn": "Column_14_lg",
+      "description": "Add your 14th column here"
+    },
+    {
+      "excelColumn": "Column_15",
+      "rawColumn": "Column_15_raw",
+      "lgColumn": "Column_15_lg",
+      "description": "Add your 15th column here"
+    }
+  ]
+}
